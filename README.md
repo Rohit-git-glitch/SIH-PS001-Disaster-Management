@@ -69,3 +69,95 @@ Rainfall
 NDVI
 SoilClay
 LandCover
+
+┌──────────────────────────────┐
+                 │       GOOGLE EARTH ENGINE    │
+                 │            (GEE)             │
+                 └──────────────┬───────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              │                 │                 │
+              ▼                 ▼                 ▼
+         Elevation           Slope            Rainfall
+          (SRTM)          (SRTM Terrain)       (CHIRPS)
+              │                 │                 │
+              └─────────────────┼─────────────────┘
+                                │
+              ┌─────────────────┼─────────────────┐
+              │                 │                 │
+              ▼                 ▼                 ▼
+            NDVI             Soil Clay        Land Cover
+           (MODIS)         (SoilGrids)       (WorldCover)
+              │                 │                 │
+              └─────────────────┼─────────────────┘
+                                ▼
+                  ┌────────────────────────┐
+                  │  6-FEATURE PREDICTOR  │
+                  │       RASTER           │
+                  │        GeoTIFF          │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │    PYTHON / JUPYTER    │
+                  │                        │
+                  │ Historical Landslide   │
+                  │ Data + Background Data │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │   DATA PREPROCESSING   │
+                  │                        │
+                  │ 6 Features + Labels    │
+                  │ Spatial Train/Test     │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │    XGBOOST MODEL       │
+                  │      TRAINING          │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │  TRAINED XGBOOST MODEL │
+                  │       xgb_final        │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+             ┌──────────────────────────────────┐
+             │ NEW / UNSEEN ASSAM RASTER PIXELS │
+             │                                  │
+             │ Elevation                         │
+             │ Slope                             │
+             │ Rainfall                          │
+             │ NDVI                              │
+             │ SoilClay                          │
+             │ LandCover                         │
+             └────────────────┬─────────────────┘
+                              │
+                              ▼
+                  ┌────────────────────────┐
+                  │ PIXEL-WISE PREDICTION  │
+                  │                        │
+                  │ Landslide Probability  │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │   PREDICTION OUTPUT     │
+                  │                        │
+                  │ GeoTIFF (.tif)         │
+                  │ Probability Raster     │
+                  └────────────┬───────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │       GEE MAP           │
+                  │                        │
+                  │ Risk Visualization     │
+                  │ + Environmental Layers │
+                  └────────────┬───────────┘
+                               
+                  
