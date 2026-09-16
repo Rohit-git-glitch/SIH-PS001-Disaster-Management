@@ -1,0 +1,30 @@
+{
+  "name": "landslide-risk-monitoring-backend",
+  "version": "1.0.0",
+  "description": "AI-Based Early Warning and Landslide Risk Monitoring System in NER (Pilot Region: Assam) - Backend Foundation",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "early-warning-system",
+    "landslide-monitoring",
+    "assam",
+    "ner",
+    "sih",
+    "express",
+    "nodejs"
+  ],
+  "author": "Rohit + Saniya",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^9.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
