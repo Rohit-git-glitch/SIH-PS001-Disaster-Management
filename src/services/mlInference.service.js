@@ -66,9 +66,18 @@ function validateAndResolveInput(clientFilename) {
   }
 
   const trimmed = clientFilename.trim();
+  if (!trimmed) {
+    throw new Error('inputPath must be a non-empty string filename.');
+  }
 
-  // Reject absolute paths
-  if (path.isAbsolute(trimmed)) {
+  // Reject absolute paths (cross-platform: POSIX, Windows drive letter, Windows UNC)
+  if (
+    path.isAbsolute(trimmed) ||
+    path.posix.isAbsolute(trimmed) ||
+    path.win32.isAbsolute(trimmed) ||
+    /^[a-zA-Z]:/.test(trimmed) ||
+    /^[\\]{2}/.test(trimmed)
+  ) {
     throw new Error('Absolute paths are not permitted. Supply only a filename or relative path.');
   }
 
@@ -77,7 +86,12 @@ function validateAndResolveInput(clientFilename) {
     throw new Error('Null bytes are not permitted in the filename.');
   }
 
-  // Reject traversal sequences
+  // Reject traversal sequences (cross-platform separators)
+  const segments = trimmed.split(/[/\\]/);
+  if (segments.includes('..') || trimmed.includes('..')) {
+    throw new Error('Path traversal ("..") is not permitted.');
+  }
+
   const normalised = path.normalize(trimmed);
   if (normalised.includes('..')) {
     throw new Error('Path traversal ("..") is not permitted.');

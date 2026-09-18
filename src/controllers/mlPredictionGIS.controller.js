@@ -49,17 +49,28 @@ function validateOutputFilePath(filePath, baseDir = OUTPUT_DIR) {
   }
 
   // Reject path traversal segments
-  const normalised = path.normalize(trimmed);
-  const segments = normalised.split(/[/\\]/);
-  if (segments.includes('..')) {
+  const segments = trimmed.split(/[/\\]/);
+  if (segments.includes('..') || trimmed.includes('..')) {
     throw new Error('Path traversal ("..") is not permitted.');
   }
 
   const allowedBase = path.resolve(baseDir);
-  const resolved = path.resolve(allowedBase, normalised);
+
+  // Cross-platform check: if Windows drive path or UNC path is provided on a non-Windows platform,
+  // it cannot reside inside allowedBase (which is POSIX).
+  if (process.platform !== 'win32') {
+    if (/^[a-zA-Z]:[\\/]|^[a-zA-Z]:|^[\\]{2}/.test(trimmed) || (path.win32.isAbsolute(trimmed) && !path.posix.isAbsolute(trimmed))) {
+      throw new Error('Access denied: Resolved file path is outside the approved ML output directory.');
+    }
+  }
+
+  const normalised = path.normalize(trimmed);
+  const resolved = path.isAbsolute(normalised)
+    ? path.resolve(normalised)
+    : path.resolve(allowedBase, normalised);
 
   // Enforce containment: resolved path must start with allowedBase + path separator
-  if (!resolved.startsWith(allowedBase + path.sep)) {
+  if (!resolved.startsWith(allowedBase + path.sep) && resolved !== allowedBase) {
     throw new Error('Access denied: Resolved file path is outside the approved ML output directory.');
   }
 

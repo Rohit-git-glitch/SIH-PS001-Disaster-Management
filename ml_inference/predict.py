@@ -149,6 +149,9 @@ def write_metadata(
 ):
     """Generate a metadata JSON file accompanying the probability raster.
     """
+    min_prob = float(prob_stats["min"]) if prob_stats and prob_stats.get("min") is not None else None
+    max_prob = float(prob_stats["max"]) if prob_stats and prob_stats.get("max") is not None else None
+
     meta = {
         "modelName": "XGBoost",
         "modelVersion": Path(model_path).stem,
@@ -156,15 +159,15 @@ def write_metadata(
         "outputType": "LANDSLIDE_PROBABILITY_RASTER",
         "fileName": Path(output_tif_path).name,
         "crs": src.crs.to_string() if src.crs else None,
-        "resolution": src.res,
+        "resolution": [float(r) for r in src.res] if src.res else None,
         "bounds": {
-            "minLongitude": src.bounds.left,
-            "minLatitude": src.bounds.bottom,
-            "maxLongitude": src.bounds.right,
-            "maxLatitude": src.bounds.top,
+            "minLongitude": float(src.bounds.left),
+            "minLatitude": float(src.bounds.bottom),
+            "maxLongitude": float(src.bounds.right),
+            "maxLatitude": float(src.bounds.top),
         },
-        "minProbability": prob_stats["min"] if prob_stats else None,
-        "maxProbability": prob_stats["max"] if prob_stats else None,
+        "minProbability": min_prob,
+        "maxProbability": max_prob,
         "generatedAt": datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z",
         "status": "COMPLETED",
         "features": EXPECTED_FEATURES,

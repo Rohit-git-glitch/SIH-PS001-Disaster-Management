@@ -14,7 +14,6 @@ This directory implements the **stand‑alone geospatial inference pipeline** re
 | `predict.py` | Core inference script – reads a 6‑band raster, validates the contract, runs the XGBoost model, writes the probability raster and metadata JSON. |
 | `Dockerfile` | Minimal container to run the inference without installing Python locally. |
 | `README.md` | This documentation (you are reading it). |
-| `tests/` | Automated pytest suite verifying the pipeline (model loading, band validation, raster processing, output correctness). |
 
 ---
 
@@ -104,18 +103,24 @@ The script reads the input raster **block‑by‑block** (using rasterio’s nat
 ---
 
 ## Test Suite
-A pytest suite lives in `ml_inference/tests/`. It covers:
-- Model loading and feature‑contract validation.
-- Correct handling of 6‑band, 5‑band, and 7‑band inputs.
-- Output raster properties (band count, dtype, nodata, dimensions, transform, CRS).
-- Probability range checks and nodata handling.
-- Generation and content verification of the metadata JSON.
-- Assurance that existing Phase 3 and Phase 4A backend tests still pass (these are unchanged).
+The automated test suites covering ML pipeline orchestration, security validation, and GIS integration live in the repository root `tests/` directory:
+- `tests/phase4c.test.js` — Validates input file resolution, cross-platform path traversal prevention, resolution scalar policy, prediction ID generation, and async process lifecycle.
+- `tests/phase4d.test.js` — Validates GIS metadata endpoints, secure raster streaming within the ML output sandbox, and result immutability.
+- `tests/verify_e2e_inference.py` — End-to-end verification script verifying the complete 19-point ML inference contract (model loading, 6-band predictor processing, float32 JSON serialization, NoData masking, and GIS preservation).
 
-Run the tests with:
+Run the test suites from the repository root with:
 ```bash
-cd ml_inference
-pytest tests
+node tests/phase4c.test.js
+node tests/phase4d.test.js
+python tests/verify_e2e_inference.py
+```
+
+To run the Python inference pipeline directly:
+```bash
+python ml_inference/predict.py \
+  --model assam_landslide_xgb_model.json \
+  --input <path_to_6band_geotiff>.tif \
+  --output ml_inference/outputs/probability.tif
 ```
 
 ---
